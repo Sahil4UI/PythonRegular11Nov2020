@@ -1,6 +1,7 @@
 
 import pygame
 import random
+from pygame.locals import *
 pygame.init()
 width=1000
 height=600
@@ -23,9 +24,10 @@ pygame.mouse.set_visible(False)
 w = target.get_width()
 h = target.get_height()
 
-zombie1 = pygame.image.load('zombie.png')
-zombie1 = pygame.transform.scale(zombie1,(150,200))
-
+def timer(seconds):
+    font = pygame.font.Font(None,30)
+    text = font.render(f"Time Left : {seconds}",True,blue)
+    gameboard.blit(text,(400,10))
 
 def main():
     zombieX = random.randint(0,width-150)
@@ -33,7 +35,17 @@ def main():
     x=0
     y=0
     gunSound = pygame.mixer.Sound("shot_sound.wav")
+    zombieList=[]
+    seconds =30
+    pygame.time.set_timer(USEREVENT,1000)
+
     
+    for i in range(0,5):
+        zombie = pygame.image.load(f"zombie{i}.png")
+        zombie = pygame.transform.scale(zombie,(150,200))
+        zombieList.append(zombie)
+
+    zombieImage = random.choice(zombieList)
     while True:
         gameboard.blit(bg,(0,0))
         for event in pygame.event.get():
@@ -42,21 +54,25 @@ def main():
             if event.type==pygame.QUIT:
                 pygame.quit()
                 quit()
+            
+            if event.type == USEREVENT:
+                seconds-=1
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 gunSound.play()
                 if rectTarget.colliderect(rectZombie):
                         zombieX = random.randint(0,width-150)
                         zombieY = random.randint(100,height-300)
+                        zombieImage = random.choice(zombieList)
                     
-                
-                
+        
+        gameboard.blit(zombieImage,(zombieX,zombieY))
         
                 
 
         x=pygame.mouse.get_pos()[0]
         y=pygame.mouse.get_pos()[1]
-        gameboard.blit(zombie1,(zombieX,zombieY))
+        # gameboard.blit(zombie1,(zombieX,zombieY))
                
         rectZombie = pygame.Rect(zombieX,zombieY,150,200)
         rectTarget = pygame.Rect(x,y,70,70)
@@ -76,7 +92,8 @@ def main():
 
 
      
-
+        timer(seconds)
+        
         #flip updates only the region where changes has been made
         pygame.display.flip()
 main()
